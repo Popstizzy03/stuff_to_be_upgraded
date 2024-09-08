@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Music Streaming App</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --background-color: #121212;
+            --text-color: #ffffff;
+            --secondary-text-color: #b3b3b3;
+            --accent-color: #1DB954;
+            --card-background: #181818;
+            --hover-background: #282828;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            background-color: var(--background-color);
+            z-index: 100;
+            padding: 20px 0;
+        }
+
+        .search-bar {
+            background-color: var(--card-background);
+            border-radius: 20px;
+            padding: 10px 15px;
+            width: 80%;
+            border: none;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 20px;
+            padding-bottom: 20px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-item {
+            flex: 0 0 auto;
+            width: calc(33.33% - 13.33px);
+            scroll-snap-align: start;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .carousel-item:hover {
+            transform: scale(1.05);
+        }
+
+        .carousel-item img {
+            width: 100%;
+            border-radius: 8px;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+        }
+
+        .carousel-item-title {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .song-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 20px;
+            padding-bottom: 20px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .song-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .song-list {
+            flex: 0 0 auto;
+            width: calc(100% - 50%);
+            scroll-snap-align: start;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .song-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--hover-background);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .song-item:last-child {
+            border-bottom: none;
+        }
+
+        .song-item:hover {
+            background-color: var(--hover-background);
+            transform: translateX(10px);
+        }
+
+        .song-item img {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+
+        .song-info {
+            flex-grow: 1;
+        }
+
+        .song-title {
+            font-weight: bold;
+        }
+
+        .song-artist {
+            font-size: 12px;
+            color: var(--secondary-text-color);
+        }
+
+        .music-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-background);
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .music-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .music-info img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+
+        .control-button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            color: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: var(--hover-background);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+        }
+
+        .volume-slider {
+            width: 100px;
+            -webkit-appearance: none;
+            background: var(--hover-background);
+            outline: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            border: 4px solid var(--card-background);
+            box-shadow: -407px 0 0 400px var(--accent-color);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            border: 4px solid var(--card-background);
+            box-shadow: -407px 0 0 400px var(--accent-color);
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                padding: 40px;
+            }
+
+            .carousel-item {
+                width: calc(20% - 16px);
+            }
+
+            .song-container {
+                gap: 30px;
+            }
+
+            .song-list {
+                width: calc(33.33% - 20px);
+            }
+
+            .music-controls {
+                flex-direction: row;
+                align-items: center;
+                padding: 20px 40px;
+            }
+
+            .music-info {
+                margin-bottom: 0;
+                margin-right: 40px;
+            }
+
+            .control-buttons {
+                margin-bottom: 0;
+                margin-right: 40px;
+            }
+
+            .progress-container {
+                flex-grow: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <input type="text" class="search-bar" placeholder="Search">
+            <div class="icon"><span class="material-icons">settings</span></div>
+        </div>
+        
+        <h2 class="section-title">Browse</h2>
+        
+        <div class="carousel">
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/genre1/200/200" alt="R&B">
+                <div class="carousel-item-title">R&B</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/genre2/200/200" alt="Hip-Hop">
+                <div class="carousel-item-title">Hip-Hop</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/genre3/200/200" alt="Pop">
+                <div class="carousel-item-title">Pop</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/genre4/200/200" alt="Rock">
+                <div class="carousel-item-title">Rock</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/genre5/200/200" alt="Electronic">
+                <div class="carousel-item-title">Electronic</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Latest Releases</h2>
+        
+        <div class="carousel">
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/album1/200/200" alt="Latest 1">
+                <div class="carousel-item-title">New Hit 1</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/album2/200/200" alt="Latest 2">
+                <div class="carousel-item-title">New Hit 2</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/album3/200/200" alt="Latest 3">
+                <div class="carousel-item-title">New Hit 3</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/album4/200/200" alt="Latest 4">
+                <div class="carousel-item-title">New Hit 4</div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://picsum.photos/seed/album5/200/200" alt="Latest 5">
+                <div class="carousel-item-title">New Hit 5</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Top Songs</h2>
+        
+        <div class="song-container">
+            <div class="song-list">
+                <div class="song-item" data-song="Blinding Lights" data-artist="The Weeknd">
+                    <img src="https://picsum.photos/seed/song1/80/80" alt="Blinding Lights">
+                    <div class="song-info">
+                        <div class="song-title">Blinding Lights</div>
+                        <div class="song-artist">The Weeknd</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="Don't Start Now" data-artist="Dua Lipa">
+                    <img src="https://picsum.photos/seed/song2/80/80" alt="Don't Start Now">
+                    <div class="song-info">
+                        <div class="song-title">Don't Start Now</div>
+                        <div class="song-artist">Dua Lipa</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="Watermelon Sugar" data-artist="Harry Styles">
+                    <img src="https://picsum.photos/seed/song3/80/80" alt="Watermelon Sugar">
+                    <div class="song-info">
+                        <div class="song-title">Watermelon Sugar</div>
+                        <div class="song-artist">Harry Styles</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="Levitating" data-artist="Dua Lipa">
+                    <img src="https://picsum.photos/seed/song4/80/80" alt="Levitating">
+                    <div class="song-info">
+                        <div class="song-title">Levitating</div>
+                        <div class="song-artist">Dua Lipa</div>
+                    </div>
+                </div>
+            </div>
+            <div class="song-list">
+                <div class="song-item" data-song="Dynamite" data-artist="BTS">
+                    <img src="https://picsum.photos/seed/song5/80/80" alt="Dynamite">
+                    <div class="song-info">
+                        <div class="song-title">Dynamite</div>
+                        <div class="song-artist">BTS</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="Positions" data-artist="Ariana Grande">
+                    <img src="https://picsum.photos/seed/song6/80/80" alt="Positions">
+                    <div class="song-info">
+                        <div class="song-title">Positions</div>
+                        <div class="song-artist">Ariana Grande</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="Save Your Tears" data-artist="The Weeknd">
+                    <img src="https://picsum.photos/seed/song7/80/80" alt="Save Your Tears">
+                    <div class="song-info">
+                        <div class="song-title">Save Your Tears</div>
+                        <div class="song-artist">The Weeknd</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="drivers license" data-artist="Olivia Rodrigo">
+                    <img src="https://picsum.photos/seed/song8/80/80" alt="drivers license">
+                    <div class="song-info">
+                        <div class="song-title">drivers license</div>
+                        <div class="song-artist">Olivia Rodrigo</div>
+                    </div>
+                </div>
+            </div>
+            <div class="song-list">
+                <div class="song-item" data-song="Stay" data-artist="The Kid LAROI & Justin Bieber">
+                    <img src="https://picsum.photos/seed/song9/80/80" alt="Stay">
+                    <div class="song-info">
+                        <div class="song-title">Stay</div>
+                        <div class="song-artist">The Kid LAROI & Justin Bieber</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="good 4 u" data-artist="Olivia Rodrigo">
+                    <img src="https://picsum.photos/seed/song10/80/80" alt="good 4 u">
+                    <div class="song-info">
+                        <div class="song-title">good 4 u</div>
+                        <div class="song-artist">Olivia Rodrigo</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="Butter" data-artist="BTS">
+                    <img src="https://picsum.photos/seed/song11/80/80" alt="Butter">
+                    <div class="song-info">
+                        <div class="song-title">Butter</div>
+                        <div class="song-artist">BTS</div>
+                    </div>
+                </div>
+                <div class="song-item" data-song="Kiss Me More" data-artist="Doja Cat ft. SZA">
+                    <img src="https://picsum.photos/seed/song12/80/80" alt="Kiss Me More">
+                    <div class="song-info">
+                        <div class="song-title">Kiss Me More</div>
+                        <div class="song-artist">Doja Cat ft. SZA</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="music-controls">
+        <div class="music-info">
+            <img src="https://picsum.photos/seed/nowplaying/100/100" alt="Now Playing" id="now-playing-img">
+            <div>
+                <div class="song-title" id="now-playing-title">Select a song</div>
+                <div class="song-artist" id="now-playing-artist">-</div>
+            </div>
+        </div>
+        <div class="control-buttons">
+            <button class="control-button" id="prev-button"><span class="material-icons">skip_previous</span></button>
+            <button class="control-button" id="play-pause-button"><span class="material-icons">play_arrow</span></button>
+            <button class="control-button" id="next-button"><span class="material-icons">skip_next</span></button>
+        </div>
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="volume-control">
+            <span class="material-icons">volume_up</span>
+            <input type="range" min="0" max="100" value="100" class="volume-slider" id="volume-slider">
+        </div>
+    </div>
+
+    <script>
+        const songItems = document.querySelectorAll('.song-item');
+        const nowPlayingImg = document.getElementById('now-playing-img');
+        const nowPlayingTitle = document.getElementById('now-playing-title');
+        const nowPlayingArtist = document.getElementById('now-playing-artist');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const volumeSlider = document.getElementById('volume-slider');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+
+        let isPlaying = false;
+        let currentSongIndex = -1;
+
+        function playSong(index) {
+            const song = songItems[index];
+            nowPlayingImg.src = song.querySelector('img').src;
+            nowPlayingTitle.textContent = song.dataset.song;
+            nowPlayingArtist.textContent = song.dataset.artist;
+            isPlaying = true;
+            playPauseButton.innerHTML = '<span class="material-icons">pause</span>';
+            currentSongIndex = index;
+            updateProgressBar();
+        }
+
+        function togglePlayPause() {
+            if (currentSongIndex === -1) return;
+            isPlaying = !isPlaying;
+            playPauseButton.innerHTML = isPlaying ? '<span class="material-icons">pause</span>' : '<span class="material-icons">play_arrow</span>';
+            if (isPlaying) {
+                updateProgressBar();
+            }
+        }
+
+        function updateProgressBar() {
+            if (!isPlaying) return;
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100 || !isPlaying) {
+                    clearInterval(interval);
+                    if (width >= 100) {
+                        playNextSong();
+                    }
+                } else {
+                    width++;
+                    progressBar.style.width = width + '%';
+                }
+            }, 100);
+        }
+
+        function playNextSong() {
+            const nextIndex = (currentSongIndex + 1) % songItems.length;
+            playSong(nextIndex);
+        }
+
+        function playPreviousSong() {
+            const prevIndex = (currentSongIndex - 1 + songItems.length) % songItems.length;
+            playSong(prevIndex);
+        }
+
+        songItems.forEach((item, index) => {
+            item.addEventListener('click', () => playSong(index));
+        });
+
+        playPauseButton.addEventListener('click', togglePlayPause);
+        nextButton.addEventListener('click', playNextSong);
+        prevButton.addEventListener('click', playPreviousSong);
+
+        progressContainer.addEventListener('click', (e) => {
+            const clickPosition = e.offsetX / progressContainer.offsetWidth;
+            progressBar.style.width = clickPosition * 100 + '%';
+            // In a real app, you would seek the audio to this position
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            const volume = volumeSlider.value / 100;
+            // In a real app, you would set the audio volume here
+            console.log(`Volume set to ${volume}`);
+        });
+
+        // Carousel touch scroll for mobile
+        const carousels = document.querySelectorAll('.carousel, .song-container');
+        carousels.forEach(carousel => {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            carousel.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - carousel.offsetLeft;
+                scrollLeft = carousel.scrollLeft;
+            });
+
+            carousel.addEventListener('mouseleave', () => {
+                isDown = false;
+            });
+
+            carousel.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+
+            carousel.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - carousel.offsetLeft;
+                const walk = (x - startX) * 2;
+                carousel.scrollLeft = scrollLeft - walk;
+            });
+
+            // Touch events for mobile devices
+            carousel.addEventListener('touchstart', (e) => {
+                isDown = true;
+                startX = e.touches[0].pageX - carousel.offsetLeft;
+                scrollLeft = carousel.scrollLeft;
+            });
+
+            carousel.addEventListener('touchend', () => {
+                isDown = false;
+            });
+
+            carousel.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - carousel.offsetLeft;
+                const walk = (x - startX) * 2;
+                carousel.scrollLeft = scrollLeft - walk;
+            });
+        });
+
+        // Smooth scrolling for carousels
+        const smoothScroll = (element, target, duration) => {
+            const start = element.scrollLeft;
+            const change = target - start;
+            const startTime = performance.now();
+
+            const animateScroll = (currentTime) => {
+                const elapsedTime = currentTime - startTime;
+                if (elapsedTime < duration) {
+                    element.scrollLeft = easeInOutQuad(elapsedTime, start, change, duration);
+                    requestAnimationFrame(animateScroll);
+                } else {
+                    element.scrollLeft = target;
+                }
+            };
+
+            const easeInOutQuad = (t, b, c, d) => {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t + b;
+                t--;
+                return -c / 2 * (t * (t - 2) - 1) + b;
+            };
+
+            requestAnimationFrame(animateScroll);
+        };
+
+        carousels.forEach(carousel => {
+            const scrollStep = carousel.offsetWidth;
+            const maxScroll = carousel.scrollWidth - carousel.offsetWidth;
+
+            carousel.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = Math.sign(e.deltaY);
+                const targetScroll = Math.max(0, Math.min(maxScroll, carousel.scrollLeft + delta * scrollStep));
+                smoothScroll(carousel, targetScroll, 300);
+            });
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
+                case 'ArrowLeft':
+                    playPreviousSong();
+                    break;
+                case 'ArrowRight':
+                    playNextSong();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
